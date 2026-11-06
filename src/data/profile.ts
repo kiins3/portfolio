@@ -63,9 +63,28 @@ export type Project = {
   stack: string[];
   links: { label: string; href: string }[];
   facts: string[];
+  /** Shown instead of links when the code can't be shared. */
+  note?: string;
 };
 
 export const projects: Project[] = [
+  {
+    name: "Rosyy — AI mental-health coaching platform",
+    tagline:
+      "Internship at ROSYY Inc. (US). Clients chat with an AI companion and book paid live sessions with human coaches; the team runs everything from an admin portal.",
+    facts: ["4 repositories", "150+ commits", "Backend + admin web + mobile"],
+    points: [
+      "Booking engine: recurring coach schedules, per-coach pricing, 24-hour cancellation and free-rebook rules, check-in windows and three-step session reminders.",
+      "Payments with Stripe: card bookings, subscriptions, discount codes, refunds, Stripe Connect payouts to coaches, and an admin console with revenue charts and a Stripe event log.",
+      "AI session grading with the OpenAI API: grades a session's chat (text, voice, image and video messages) against the team's coaching rubric, during or after the session, and emails the team when it spots risk cues.",
+      "Coach onboarding end to end: application form, email verification, a contract and NDA signed with a drawn signature, training modules and scenario questions, admin review with reasons, and switches to skip steps.",
+      "Admin portal (Next.js, React Query): user and coach management with search, audit reasons and account recovery; coach approvals; schedules; chat and support rooms; AI grade reports.",
+      "Separate staging environment, Docker images deployed to Google Cloud Run; coach-side screens in the Flutter app.",
+    ],
+    stack: ["Node.js", "Express", "TypeScript", "Supabase (Postgres)", "Stripe", "OpenAI", "Next.js", "React", "Flutter", "Docker", "Cloud Run"],
+    links: [],
+    note: "Private company codebase",
+  },
   {
     name: "Blood Bank Management System",
     tagline:

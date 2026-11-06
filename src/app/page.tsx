@@ -97,6 +97,11 @@ export default function Home() {
                         {l.label} ↗
                       </a>
                     ))}
+                    {p.note && (
+                      <span className="rounded-md border border-dashed border-border px-3 py-1 text-sm text-muted">
+                        {p.note}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <ul className="mt-4 flex flex-wrap gap-2">
