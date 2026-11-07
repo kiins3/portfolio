@@ -101,7 +101,7 @@ export const projects: Project[] = [
     stack: ["Java 17", "Spring Boot 3", "Spring Security", "MySQL", "Redis", "RabbitMQ", "WebSocket", "Docker"],
     links: [
       { label: "Backend", href: "https://github.com/kiins3/BloodBankManager" },
-      { label: "Frontend", href: "https://github.com/kiins3/BloodBankManagerFE" },
+      { label: "Frontend", href: "https://github.com/kiins3/bloodbank-web" },
     ],
   },
   {
