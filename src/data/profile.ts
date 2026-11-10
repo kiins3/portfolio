@@ -100,22 +100,10 @@ export const projects: Project[] = [
     ],
     stack: ["Java 17", "Spring Boot 3", "Spring Security", "MySQL", "Redis", "RabbitMQ", "WebSocket", "Docker"],
     links: [
+      { label: "Live demo", href: "https://bloodbank-vn.vercel.app" },
       { label: "Backend", href: "https://github.com/kiins3/BloodBankManager" },
       { label: "Frontend", href: "https://github.com/kiins3/bloodbank-web" },
     ],
-  },
-  {
-    name: "Library Management System",
-    tagline: "REST API for a library: catalogue, physical copies, readers and the borrow → return → compensation flow.",
-    facts: ["~30 endpoints", "6 tables", "3 roles"],
-    points: [
-      "Borrowing picks a copy under a pessimistic write lock, so two readers can't take the last copy at the same time.",
-      "The JWT carries role and account status; only active readers can borrow, and three violations ban an account automatically.",
-      "Tracks each copy (available, unavailable, damaged, lost) and each loan (borrowing, overdue, returned, needs compensation).",
-      "Accent-insensitive search for Vietnamese titles and names.",
-    ],
-    stack: ["Java 17", "Spring Boot 3", "OAuth2 Resource Server", "SQL Server", "MapStruct", "Docker"],
-    links: [{ label: "Source", href: "https://github.com/kiins3/BookManager" }],
   },
 ];
 
