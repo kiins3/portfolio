@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { education, experience, profile, projects, skills } from "../data/profile";
 
 const nav = [
@@ -111,6 +112,17 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
+                {p.images && (
+                  <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {p.images.map((img) => (
+                      <li key={img.src}>
+                        <a href={img.src} target="_blank" rel="noreferrer" title={img.alt} className="block overflow-hidden rounded-lg border border-border hover:border-accent">
+                          <Image src={img.src} alt={img.alt} width={1440} height={900} sizes="(min-width: 640px) 200px, 50vw" className="h-auto w-full" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <ul className="mt-5 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-accent">
                   {p.points.map((pt) => (
                     <li key={pt}>{pt}</li>

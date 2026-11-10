@@ -65,6 +65,8 @@ export type Project = {
   facts: string[];
   /** Shown instead of links when the code can't be shared. */
   note?: string;
+  /** Screenshots in public/, 1440x900. */
+  images?: { src: string; alt: string }[];
 };
 
 export const projects: Project[] = [
@@ -103,6 +105,12 @@ export const projects: Project[] = [
       { label: "Live demo", href: "https://bloodbank-vn.vercel.app" },
       { label: "Backend", href: "https://github.com/kiins3/BloodBankManager" },
       { label: "Frontend", href: "https://github.com/kiins3/bloodbank-web" },
+    ],
+    images: [
+      { src: "/projects/bloodbank-landing.png", alt: "Public landing page with upcoming donation campaigns" },
+      { src: "/projects/bloodbank-admin.png", alt: "Admin dashboard: stock by blood group, campaigns and pending requests" },
+      { src: "/projects/bloodbank-desk.png", alt: "Campaign desk for technical staff: check-in, screening and collection queues with live updates" },
+      { src: "/projects/bloodbank-request.png", alt: "Hospital view of a delivered blood request with progress and exported bags" },
     ],
   },
 ];
