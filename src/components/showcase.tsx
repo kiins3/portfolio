@@ -43,7 +43,7 @@ export function Showcase({ features, frameUrl }: { features: Feature[]; frameUrl
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div role="tablist" aria-label="Features" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
+      <div role="tablist" aria-label="Features" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
         {features.map((f, i) => {
           const on = i === active;
           return (

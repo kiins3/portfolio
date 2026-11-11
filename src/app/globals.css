@@ -317,6 +317,52 @@ body {
   to { transform: scaleX(1); }
 }
 
+/* ---------- 3D carousel ---------- */
+
+.carousel-stage {
+  touch-action: pan-y;
+  cursor: grab;
+}
+.carousel-stage:active {
+  cursor: grabbing;
+}
+.carousel-ring {
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.22, 0.8, 0.25, 1);
+}
+.carousel-ring[data-dragging="true"] {
+  transition: none;
+}
+.carousel-card {
+  backface-visibility: hidden;
+  transition: opacity 0.6s ease, filter 0.6s ease, box-shadow 0.4s ease;
+}
+.carousel-card img {
+  pointer-events: none;
+}
+.carousel-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  height: 46px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 30%, transparent), transparent);
+  filter: blur(6px);
+}
+
+/* ---------- AI pipeline ---------- */
+
+.pipe-line {
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  background-size: 200% 100%;
+  animation: pipe-flow 2.4s linear infinite;
+}
+@keyframes pipe-flow {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
 /* ---------- Overlays ---------- */
 
 .overlay {

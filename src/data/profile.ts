@@ -59,8 +59,8 @@ export const experience: Experience[] = [
 /** A screenshot in public/projects. */
 export type Shot = { src: string; alt: string; width: number; height: number; kind?: "browser" | "phone" };
 
-/** One tab in a project's feature showcase. */
-export type Feature = { title: string; desc: string; shot: Shot };
+/** One tab in a feature showcase, or one screen on the carousel. */
+export type Feature = { title: string; desc: string; shot: Shot; group?: string };
 
 export type Project = {
   name: string;
@@ -73,64 +73,69 @@ export type Project = {
   facts: string[];
   /** Shown next to the links when the code can't be shared. */
   note?: string;
+  /** Phone screens on the turning 3D carousel. */
+  carousel?: Feature[];
   /** Address shown in the browser frame around web screenshots. */
   frameUrl?: string;
+  /** Heading over the feature tabs when a project has both. */
+  featuresLabel?: string;
   features?: Feature[];
 };
 
-const phone = (src: string, alt: string): Shot => ({ src, alt, width: 720, height: 1561, kind: "phone" });
+const phone = (src: string, alt: string): Shot => ({ src, alt, width: 720, height: 1600, kind: "phone" });
+const playShot = (src: string, alt: string): Shot => ({ src, alt, width: 720, height: 1561, kind: "phone" });
 const web = (src: string, alt: string): Shot => ({ src, alt, width: 1440, height: 900, kind: "browser" });
+const admin = (src: string, alt: string): Shot => ({ src, alt, width: 1400, height: 875, kind: "browser" });
+
+const R = "/projects/rosyy";
 
 export const projects: Project[] = [
   {
     name: "Rosyy — coaching platform for mothers",
     kicker: "Internship · ROSYY Inc. (US) · live on Google Play",
     tagline:
-      "Mothers and caregivers book paid live sessions with human coaches; the team runs bookings, payments and coaches from an admin portal.",
-    facts: ["4 repositories", "150+ commits", "Backend + admin web + mobile"],
+      "Mothers and caregivers book paid live sessions with human support partners; the team runs bookings, payments and coaches from an admin portal.",
+    facts: ["4 repositories", "150+ commits", "Booking + Stripe", "Coach onboarding"],
     points: [
-      "Booking engine: recurring coach schedules, per-coach pricing, 24-hour cancellation and free-rebook rules, check-in windows and three-step session reminders.",
-      "Payments with Stripe: card bookings, subscriptions, discount codes, refunds, Stripe Connect payouts to coaches, and an admin console with revenue charts and a Stripe event log.",
-      "Coach onboarding end to end: application form, email verification, a contract and NDA signed with a drawn signature, training modules and scenario questions, admin review with reasons, and switches to skip steps.",
-      "Admin portal (Next.js, React Query): user and coach management with search, audit reasons and account recovery; coach approvals; schedules; chat and support rooms.",
-      "Separate staging environment, Docker images deployed to Google Cloud Run; coach-side screens in the Flutter app.",
+      "Booking engine: recurring coach schedules that top up 30-minute slots automatically, 24-hour cancellation and free-rebook rules, check-in windows and session reminders.",
+      "Payments with Stripe: card checkout, subscriptions, discount codes, refunds, Stripe Connect payouts to coaches, and an admin console with revenue, a credit ledger and the Stripe event log.",
+      "Coach onboarding end to end: application, contract and NDA signed in the app with a drawn signature, training modules and scenario questions, admin review with reasons, and an email at every step.",
+      "Admin portal (Next.js): user and coach management with search and audit reasons, bookings with reassign, refund and force-cancel, expert schedules.",
+      "A separate staging environment with its own accounts; Docker images deployed to Google Cloud Run; coach and client screens in the Flutter app.",
     ],
-    stack: ["Node.js", "Express", "TypeScript", "Supabase (Postgres)", "Stripe", "Next.js", "React", "Flutter", "Docker", "Cloud Run"],
+    stack: ["Node.js", "Express", "TypeScript", "Supabase (Postgres)", "Stripe", "Next.js", "Flutter", "Docker", "Cloud Run"],
     links: [{ label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.rosyy.rosyy_and" }],
     note: "Private company codebase",
+    carousel: [
+      { group: "Client", title: "Home", desc: "AI companion, booking and wellness content in one place.", shot: phone(`${R}/app-home.png`, "Rosyy app home screen") },
+      { group: "Client", title: "Book a session", desc: "Pick a day and a 30-minute slot from the coaches' live availability.", shot: phone(`${R}/app-book.png`, "Booking calendar with open time slots") },
+      { group: "Client", title: "Stripe checkout", desc: "The slot is held for 15 minutes while the client pays by card.", shot: phone(`${R}/app-pay.png`, "Stripe payment sheet inside the app") },
+      { group: "Client", title: "Booking confirmed", desc: "Paid, confirmed and added to the client's sessions.", shot: phone(`${R}/app-paid.png`, "Payment and session confirmed screen") },
+      { group: "Client", title: "My sessions", desc: "Upcoming, completed and cancelled sessions with the cancellation rules applied.", shot: phone(`${R}/app-sessions.png`, "List of booked sessions with statuses") },
+      { group: "Client", title: "SOS", desc: "Crisis lines one tap away from every screen.", shot: phone(`${R}/app-sos.png`, "SOS screen with crisis helplines") },
+      { group: "Coach", title: "Become a support partner", desc: "Coaches apply from the app or the website.", shot: phone(`${R}/coach-apply.png`, "Support partner application intro") },
+      { group: "Coach", title: "Sign the contract", desc: "Contract and NDA signed in the app with a drawn signature.", shot: phone(`${R}/coach-contract.png`, "Signing the coach contract in the app") },
+      { group: "Coach", title: "Coach training", desc: "Training modules that unlock the scenario questions.", shot: phone(`${R}/coach-training.png`, "Coach training module") },
+      { group: "Coach", title: "Coach hub", desc: "Upcoming sessions, clients, availability and client notes.", shot: phone(`${R}/coach-hub.png`, "Coach hub with sessions and tools") },
+      { group: "Coach", title: "Stripe payouts", desc: "Coaches connect a bank through Stripe Connect and follow their earnings.", shot: phone(`${R}/coach-payouts.png`, "Coach payouts page connected to Stripe") },
+    ],
+    featuresLabel: "Admin portal",
+    frameUrl: "admin.rosyy.org",
     features: [
       {
-        title: "Mobile app",
-        desc: "Flutter app for mothers and caregivers, live on Google Play.",
-        shot: phone("/projects/rosyy-1.png", "Rosyy app: welcome screen"),
+        title: "Revenue",
+        desc: "Payments, credit ledger, IAP receipts, coach payouts and the Stripe event log, with filters and CSV export.",
+        shot: admin(`${R}/admin-revenue.png`, "Admin revenue console with Stripe payments"),
       },
       {
-        title: "Personal companion",
-        desc: "Clients pick the companion they talk to and can change it at any time.",
-        shot: phone("/projects/rosyy-2.png", "Rosyy app: choosing an AI companion"),
+        title: "Bookings",
+        desc: "Every session across coaches: reassign, mark the outcome, force-cancel or refund.",
+        shot: admin(`${R}/admin-bookings.png`, "Admin bookings table with actions"),
       },
-    ],
-  },
-  {
-    name: "Rosyy AI — companion chatbot and session grading",
-    kicker: "AI features · ROSYY Inc.",
-    tagline:
-      "The AI side of Rosyy: the companion chatbot clients talk to every day, and an LLM grader that reviews live coaching sessions and flags risk.",
-    facts: ["OpenAI API", "Text · voice · image · video", "Risk alerts by email"],
-    points: [
-      "Worked with the team lead on training and tuning the AI companion that clients chat with in the app.",
-      "AI session grading with the OpenAI API: grades a session's chat (text, voice, image and video messages) against the team's coaching rubric, during or after the session.",
-      "Emails the team when the grader spots risk cues, so a person can step in quickly.",
-      "Grade reports in the admin portal for reviewing coaches over time.",
-    ],
-    stack: ["OpenAI API", "Prompt engineering", "Node.js", "TypeScript", "Supabase (Postgres)", "Next.js"],
-    links: [],
-    note: "Private company codebase",
-    features: [
       {
-        title: "Companion chat",
-        desc: "Everyday conversations with the AI companion; every reply can be rated thumbs up or down.",
-        shot: phone("/projects/rosyy-3.png", "Rosyy app: chat with the AI companion"),
+        title: "Expert schedules",
+        desc: "Set a coach's weekly hours once; 30-minute sessions are generated and topped up automatically.",
+        shot: admin(`${R}/admin-schedules.png`, "Admin weekly schedule editor for a coach"),
       },
     ],
   },
@@ -179,13 +184,86 @@ export const projects: Project[] = [
   },
 ];
 
+/** The AI work at Rosyy, shown in its own section. */
+export const aiProject: Project = {
+  name: "Rosyy AI — companion chatbot and LLM session grading",
+  kicker: "AI features · ROSYY Inc.",
+  tagline:
+    "The AI side of Rosyy: the companion chatbot mothers talk to every day, and an LLM judge that grades coaching sessions, practice chats and the chatbot itself, then flags risk to the team.",
+  facts: ["GPT-4.1 · structured outputs", "LLM-as-judge", "Text · voice · image · video", "Risk alerts by email"],
+  points: [
+    "Tuned the companion chatbot with the team lead: the clinical team's system prompt shipped as Chatbot Rules that admins edit live, with placeholders for the client's name, memories and crisis resources, and fixes to how replies read.",
+    "Session grading with an LLM judge: GPT-4.1 at temperature 0 with a strict JSON schema scores each rubric criterion 5 / 3 / 1 / NR and quotes the messages behind every score.",
+    "The model only scores; weights, NR rescaling, safety gates, bands and pass/fail are computed in code, so a grade is reproducible and the rubric can change without touching the prompt.",
+    "Reads the whole chat: voice notes are transcribed and images and video are described by a vision model before grading.",
+    "Grades a session automatically a few minutes after it ends (or on demand while it runs) and emails the team when it finds risk cues such as coded suicidal language.",
+    "Practice chat for coach applicants: the AI plays a client persona for a 30-minute chat, the transcript is graded on both the criteria and the Chatbot Rules, and an admin passes, fails or sends the applicant back to train.",
+    "Admins edit the criteria, weights and safety gates from the portal; old grades keep the version they were graded on.",
+  ],
+  stack: ["OpenAI API", "GPT-4.1", "Structured outputs", "Speech-to-text", "Vision", "Prompt engineering", "Node.js", "TypeScript", "Supabase", "Next.js"],
+  links: [],
+  note: "Private company codebase",
+  frameUrl: "admin.rosyy.org",
+  features: [
+    {
+      title: "Companion chat",
+      desc: "The AI companion clients talk to every day; each reply can be rated thumbs up or down.",
+      shot: playShot("/projects/rosyy-3.png", "Rosyy app: chat with the AI companion"),
+    },
+    {
+      title: "Personal companion",
+      desc: "Clients choose who they talk to; the companion remembers what they share across chats.",
+      shot: playShot("/projects/rosyy-2.png", "Rosyy app: choosing an AI companion"),
+    },
+    {
+      title: "Chatbot Rules",
+      desc: "The companion's system prompt, edited live by the team; a save applies to the next reply.",
+      shot: admin(`${R}/ai-rules.png`, "Admin page for editing the chatbot's system prompt"),
+    },
+    {
+      title: "Session grades",
+      desc: "Every coaching session graded a few minutes after it ends, with risk cues flagged and emailed.",
+      shot: admin(`${R}/ai-grades.png`, "List of AI-graded sessions with scores and risk flags"),
+    },
+    {
+      title: "Grade report",
+      desc: "Score, band, safety gate, the risk cues found and a summary, next to the chat it was graded on.",
+      shot: admin(`${R}/ai-grade-detail.png`, "AI grade report for one coaching session"),
+    },
+    {
+      title: "Practice chat",
+      desc: "Applicants chat with an AI that plays a mother in a hard moment, as they would in a real session.",
+      shot: admin(`${R}/ai-practice.png`, "Practice chat where an AI plays a client"),
+    },
+    {
+      title: "Practice review",
+      desc: "The AI's grade is advice: an admin reads it and passes, fails or sends the applicant back to train.",
+      shot: admin(`${R}/ai-practice-review.png`, "Admin review of a graded practice chat"),
+    },
+    {
+      title: "Criteria editor",
+      desc: "Admins edit criteria, weights and safety gates; each grade keeps the version it used.",
+      shot: admin(`${R}/ai-criteria.png`, "Editor for the grading criteria and weights"),
+    },
+  ],
+};
+
+/** How a session grade is made, shown as a pipeline in the AI section. */
+export const gradingPipeline: { title: string; desc: string }[] = [
+  { title: "Session ends", desc: "A job picks it up a few minutes later, or an admin grades it live." },
+  { title: "Transcript", desc: "Text as is; voice transcribed; images and video described." },
+  { title: "LLM judge", desc: "GPT-4.1, temperature 0, JSON schema: a score and quotes per criterion." },
+  { title: "Score in code", desc: "Weights, NR rescaling, safety gates, band and pass/fail." },
+  { title: "Report + alert", desc: "Grade report in the admin portal; risk cues emailed to the team." },
+];
+
 export const skills: { group: string; items: string[] }[] = [
   { group: "Languages", items: ["Java", "TypeScript", "Python", "SQL", "C/C++"] },
   { group: "Backend", items: ["Spring Boot", "Spring Security", "Spring Data JPA", "Node.js / Express", "FastAPI"] },
   { group: "Data", items: ["MySQL", "PostgreSQL", "SQL Server", "Redis", "Supabase"] },
   { group: "Infrastructure", items: ["Docker", "RabbitMQ", "Git", "Maven", "Google Cloud Run"] },
   { group: "Practices", items: ["REST API design", "RBAC / JWT", "Async processing", "Code review", "Testing (pytest)"] },
-  { group: "AI", items: ["LLM integration", "Prompt engineering", "AI review loops"] },
+  { group: "AI", items: ["LLM integration", "LLM-as-judge", "Structured outputs", "Prompt engineering"] },
 ];
 
 export const education = {

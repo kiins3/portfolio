@@ -1,12 +1,14 @@
 import { CommandPalette, type PaletteLink } from "../components/command-palette";
 import { CopyButton, CountUp, HanoiClock, Spotlight, Toaster, Typewriter } from "../components/effects";
+import { Carousel } from "../components/carousel";
 import { Nav } from "../components/nav";
 import { Showcase } from "../components/showcase";
 import { Terminal } from "../components/terminal";
-import { education, experience, profile, projects, skills } from "../data/profile";
+import { aiProject, education, experience, gradingPipeline, profile, projects, skills, type Project } from "../data/profile";
 
 const nav = [
   { href: "#projects", label: "Projects" },
+  { href: "#ai", label: "AI" },
   { href: "#experience", label: "Experience" },
   { href: "#skills", label: "Skills" },
   { href: "#contact", label: "Contact" },
@@ -47,6 +49,90 @@ function SectionTitle({ id, index, children }: { id: string; index: string; chil
       <span className="text-2xl font-bold tracking-tight sm:text-3xl">{children}</span>
       <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
     </h2>
+  );
+}
+
+function SubLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-8 flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-muted">
+      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+      {children}
+      <span className="h-px flex-1 bg-border" />
+    </p>
+  );
+}
+
+function ProjectCard({ p }: { p: Project }) {
+  return (
+    <article className="reveal spotlight rounded-3xl border border-border bg-surface/80 p-5 backdrop-blur sm:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-2xl">
+          <p className="font-mono text-xs text-accent">{p.kicker}</p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight">{p.name}</h3>
+          <p className="mt-2 leading-relaxed text-muted">{p.tagline}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {p.links.map((l, i) => (
+            <a
+              key={l.href}
+              href={l.href}
+              target="_blank"
+              rel="noreferrer"
+              className={`group rounded-full px-3.5 py-1.5 text-sm font-medium transition hover:-translate-y-0.5 ${
+                i === 0
+                  ? "bg-accent text-background shadow-md shadow-accent/20"
+                  : "border border-border hover:border-accent hover:text-accent"
+              }`}
+            >
+              {l.label}{" "}
+              <span className="inline-block transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
+            </a>
+          ))}
+          {p.note && (
+            <span className="rounded-full border border-dashed border-border px-3.5 py-1.5 text-sm text-muted">{p.note}</span>
+          )}
+        </div>
+      </div>
+      <ul className="mt-4 flex flex-wrap gap-2">
+        {p.facts.map((f) => (
+          <li key={f} className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+            {f}
+          </li>
+        ))}
+      </ul>
+
+      {p.carousel && (
+      <>
+        <SubLabel>Mobile app · Flutter</SubLabel>
+        <Carousel slides={p.carousel} />
+      </>
+    )}
+    {p.features && (
+      <>
+        {p.featuresLabel && <SubLabel>{p.featuresLabel}</SubLabel>}
+        <Showcase features={p.features} frameUrl={p.frameUrl} />
+      </>
+    )}
+
+      <div className="mt-8 grid gap-6 border-t border-border pt-6 lg:grid-cols-[1fr_16rem]">
+        <ul className="space-y-2.5 text-sm leading-relaxed text-muted">
+          {p.points.map((pt) => (
+            <li key={pt} className="flex gap-3">
+              <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+              <span>{pt}</span>
+            </li>
+          ))}
+        </ul>
+        <div>
+          <p className="font-mono text-xs uppercase tracking-wider text-muted">Stack</p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {p.stack.map((s) => (
+              <Tag key={s}>{s}</Tag>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -181,71 +267,42 @@ export default function Home() {
             </SectionTitle>
             <div className="grid gap-8">
               {projects.map((p) => (
-                <article key={p.name} className="reveal spotlight rounded-3xl border border-border bg-surface/80 p-5 backdrop-blur sm:p-8">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="max-w-2xl">
-                      <p className="font-mono text-xs text-accent">{p.kicker}</p>
-                      <h3 className="mt-2 text-2xl font-bold tracking-tight">{p.name}</h3>
-                      <p className="mt-2 leading-relaxed text-muted">{p.tagline}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {p.links.map((l, i) => (
-                        <a
-                          key={l.href}
-                          href={l.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`group rounded-full px-3.5 py-1.5 text-sm font-medium transition hover:-translate-y-0.5 ${
-                            i === 0
-                              ? "bg-accent text-background shadow-md shadow-accent/20"
-                              : "border border-border hover:border-accent hover:text-accent"
-                          }`}
-                        >
-                          {l.label}{" "}
-                          <span className="inline-block transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
-                        </a>
-                      ))}
-                      {p.note && (
-                        <span className="rounded-full border border-dashed border-border px-3.5 py-1.5 text-sm text-muted">{p.note}</span>
-                      )}
-                    </div>
-                  </div>
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {p.facts.map((f) => (
-                      <li key={f} className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {p.features && <Showcase features={p.features} frameUrl={p.frameUrl} />}
-
-                  <div className="mt-8 grid gap-6 border-t border-border pt-6 lg:grid-cols-[1fr_16rem]">
-                    <ul className="space-y-2.5 text-sm leading-relaxed text-muted">
-                      {p.points.map((pt) => (
-                        <li key={pt} className="flex gap-3">
-                          <span className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-                          <span>{pt}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-wider text-muted">Stack</p>
-                      <ul className="mt-3 flex flex-wrap gap-2">
-                        {p.stack.map((s) => (
-                          <Tag key={s}>{s}</Tag>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </article>
+                <ProjectCard key={p.name} p={p} />
               ))}
             </div>
           </section>
 
+          {/* AI */}
+          <section className="py-16">
+            <SectionTitle id="ai" index="02">
+              AI engineering
+            </SectionTitle>
+            <div className="reveal mb-8 grid gap-6 lg:grid-cols-[1fr_1.4fr] lg:items-end">
+              <p className="max-w-xl leading-relaxed text-muted">
+                LLM features I built and run in production at Rosyy: a companion chatbot tuned with the team lead, and an LLM judge
+                that grades every coaching session against a clinical rubric and tells people when to step in.
+              </p>
+              <ol className="relative grid grid-cols-1 gap-3 sm:grid-cols-5 sm:gap-2" aria-label="How a session is graded">
+                <span className="pipe-line absolute left-[10%] right-[10%] top-[15px] hidden h-0.5 rounded-full sm:block" aria-hidden />
+                {gradingPipeline.map((step, i) => (
+                  <li key={step.title} className="relative flex gap-3 sm:flex-col sm:items-center sm:text-center">
+                    <span className="relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-accent/40 bg-surface font-mono text-xs font-semibold text-accent shadow-sm shadow-accent/20">
+                      {i + 1}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold">{step.title}</span>
+                      <span className="mt-0.5 block text-xs leading-relaxed text-muted">{step.desc}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <ProjectCard p={aiProject} />
+          </section>
+
           {/* Experience */}
           <section className="py-16">
-            <SectionTitle id="experience" index="02">
+            <SectionTitle id="experience" index="03">
               Experience
             </SectionTitle>
             <ol className="relative space-y-6 pl-8 sm:pl-10">
@@ -286,7 +343,7 @@ export default function Home() {
 
           {/* Skills */}
           <section className="py-16">
-            <SectionTitle id="skills" index="03">
+            <SectionTitle id="skills" index="04">
               Skills
             </SectionTitle>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -308,7 +365,7 @@ export default function Home() {
 
           {/* Contact */}
           <section className="py-24">
-            <SectionTitle id="contact" index="04">
+            <SectionTitle id="contact" index="05">
               Contact
             </SectionTitle>
             <div className="reveal spotlight relative overflow-hidden rounded-3xl border border-border bg-surface/80 p-8 backdrop-blur sm:p-12">
