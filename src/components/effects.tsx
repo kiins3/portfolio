@@ -1,23 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-function prefersReducedMotion() {
+export function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Feeds the cursor position to every `.spotlight` card as --mx / --my. */
+/** Feeds the cursor position to the page glow (--cx/--cy) and to `.spotlight` cards (--mx/--my). */
 export function Spotlight() {
   useEffect(() => {
+    const root = document.documentElement;
+    let frame = 0;
     const onMove = (e: PointerEvent) => {
-      const card = (e.target as Element | null)?.closest<HTMLElement>(".spotlight");
-      if (!card) return;
-      const r = card.getBoundingClientRect();
-      card.style.setProperty("--mx", `${e.clientX - r.left}px`);
-      card.style.setProperty("--my", `${e.clientY - r.top}px`);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        root.style.setProperty("--cx", `${e.clientX}px`);
+        root.style.setProperty("--cy", `${e.clientY}px`);
+        const card = (e.target as Element | null)?.closest<HTMLElement>(".spotlight");
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        card.style.setProperty("--my", `${e.clientY - r.top}px`);
+      });
     };
     document.addEventListener("pointermove", onMove, { passive: true });
-    return () => document.removeEventListener("pointermove", onMove);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("pointermove", onMove);
+    };
   }, []);
   return null;
 }
@@ -65,43 +75,104 @@ export function Typewriter({ words }: { words: string[] }) {
   );
 }
 
-/** Top nav that highlights the section currently on screen. */
-export function Nav({ items }: { items: { href: string; label: string }[] }) {
-  const [active, setActive] = useState("");
+/** Counts a value like "150+" or "~95" up from zero the first time it scrolls into view. */
+export function CountUp({ value }: { value: string }) {
+  const match = value.match(/^(\D*)(\d+)(.*)$/);
+  const ref = useRef<HTMLSpanElement>(null);
+  const [shown, setShown] = useState(value);
 
   useEffect(() => {
-    const owner = new Map<Element, string>();
-    for (const i of items) {
-      const heading = document.querySelector(i.href);
-      const section = heading?.closest("section");
-      if (section) owner.set(section, i.href);
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setActive(owner.get(e.target) ?? "");
-        }
-      },
-      { rootMargin: "-45% 0px -50% 0px" },
-    );
-    owner.forEach((_, section) => io.observe(section));
-    return () => io.disconnect();
-  }, [items]);
+    if (!match || prefersReducedMotion()) return;
+    const [, pre, num, post] = match;
+    const target = Number(num);
+    const el = ref.current;
+    if (!el) return;
+    setShown(`${pre}0${post}`);
+
+    let frame = 0;
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / 1400);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setShown(`${pre}${Math.round(target * eased)}${post}`);
+        if (t < 1) frame = requestAnimationFrame(step);
+      };
+      frame = requestAnimationFrame(step);
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(frame);
+    };
+    // The value never changes for a given card.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return (
-    <nav className="flex gap-4 text-sm text-muted sm:gap-6">
-      {items.map((n) => (
-        <a
-          key={n.href}
-          href={n.href}
-          className={`relative py-1 transition-colors hover:text-foreground ${active === n.href ? "text-foreground" : ""}`}
-        >
-          {n.label}
-          <span
-            className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-accent transition-transform duration-300 ${active === n.href ? "scale-x-100" : "scale-x-0"}`}
-          />
-        </a>
-      ))}
-    </nav>
+    <span ref={ref}>
+      <span className="sr-only">{value}</span>
+      <span aria-hidden>{shown}</span>
+    </span>
+  );
+}
+
+/** Current time in Hanoi, rendered only in the browser. */
+export function HanoiClock() {
+  const [time, setTime] = useState<string | null>(null);
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit" });
+    const update = () => setTime(fmt.format(new Date()));
+    update();
+    const id = setInterval(update, 15_000);
+    return () => clearInterval(id);
+  }, []);
+  return <span className="tabular-nums">{time ?? "--:--"}</span>;
+}
+
+/** Small toast at the bottom of the screen; call `toast("…")` from anywhere. */
+export function toast(message: string) {
+  window.dispatchEvent(new CustomEvent("toast", { detail: message }));
+}
+
+export function Toaster() {
+  const [msg, setMsg] = useState<{ text: string; id: number } | null>(null);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const onToast = (e: Event) => {
+      clearTimeout(timer);
+      setMsg({ text: (e as CustomEvent<string>).detail, id: Date.now() });
+      timer = setTimeout(() => setMsg(null), 2200);
+    };
+    window.addEventListener("toast", onToast);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("toast", onToast);
+    };
+  }, []);
+  return (
+    <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-[70] flex justify-center px-4">
+      {msg && (
+        <p key={msg.id} className="pop rounded-full border border-border bg-surface px-4 py-2 text-sm shadow-xl">
+          <span className="mr-2 text-accent">✓</span>
+          {msg.text}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Button that copies text and shows a toast. */
+export function CopyButton({ text, label, className }: { text: string; label: string; className?: string }) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={() => navigator.clipboard.writeText(text).then(() => toast("Copied to clipboard"), () => toast(text))}
+    >
+      {label}
+    </button>
   );
 }

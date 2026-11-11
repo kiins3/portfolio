@@ -1,34 +1,60 @@
 @import "tailwindcss";
 
+/* ---------- Theme tokens ---------- */
+
 :root {
   --background: #fafaf9;
   --surface: #ffffff;
+  --surface-2: #f5f5f4;
   --foreground: #1c1917;
   --muted: #57534e;
   --border: #e7e5e4;
   --accent: #0f766e;
+  --accent-2: #0284c7;
   --accent-soft: #ccfbf1;
+  --glow: rgba(15, 118, 110, 0.18);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0c0a09;
-    --surface: #1c1917;
-    --foreground: #f5f5f4;
-    --muted: #a8a29e;
-    --border: #292524;
+  :root:not([data-theme="light"]) {
+    --background: #09090b;
+    --surface: #121215;
+    --surface-2: #18181b;
+    --foreground: #f4f4f5;
+    --muted: #a1a1aa;
+    --border: #27272a;
     --accent: #2dd4bf;
-    --accent-soft: #134e4a;
+    --accent-2: #38bdf8;
+    --accent-soft: #123b38;
+    --glow: rgba(45, 212, 191, 0.16);
+    color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --background: #09090b;
+  --surface: #121215;
+  --surface-2: #18181b;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --accent: #2dd4bf;
+  --accent-2: #38bdf8;
+  --accent-soft: #123b38;
+  --glow: rgba(45, 212, 191, 0.16);
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
   --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -44,11 +70,58 @@ body {
   color: var(--foreground);
 }
 
-/* ---------- Effects ---------- */
-
 ::selection {
   background: var(--accent);
   color: var(--background);
+}
+
+/* Theme switch: the new theme grows as a circle from the toggle (see theme-toggle.tsx) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* ---------- Page background ---------- */
+
+/* Faint grid over the whole page, fading towards the bottom */
+.page-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 80%);
+}
+
+/* Soft light that follows the cursor across the page */
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(600px circle at var(--cx, 50%) var(--cy, -20%), var(--glow), transparent 45%);
+  transition: background 0.2s;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.32;
+  animation: drift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.blob-1 { width: 380px; height: 380px; left: -120px; top: -40px; background: var(--accent); }
+.blob-2 { width: 320px; height: 320px; right: -80px; top: 80px; background: var(--accent-2); animation-delay: -6s; animation-duration: 22s; }
+.blob-3 { width: 260px; height: 260px; left: 40%; top: 320px; background: #a78bfa; animation-delay: -12s; opacity: 0.2; }
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, -30px) scale(1.1); }
+  100% { transform: translate(-30px, 30px) scale(0.95); }
 }
 
 /* Reading progress bar */
@@ -56,64 +129,63 @@ body {
   position: fixed;
   inset: 0 0 auto 0;
   height: 2px;
-  z-index: 50;
+  z-index: 60;
   transform-origin: 0 50%;
   transform: scaleX(0);
-  background: linear-gradient(90deg, var(--accent), #38bdf8, #a78bfa);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), #a78bfa);
 }
 
-/* Hero background: slow drifting blobs over a fading dot grid */
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -1;
+/* ---------- Navigation ---------- */
+
+.nav-pill {
+  transition: box-shadow 0.4s, background-color 0.4s, padding 0.4s, border-color 0.4s;
 }
-.hero-bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 30%, transparent 75%);
+.nav-pill[data-scrolled="true"] {
+  background-color: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.35);
 }
-.blob {
+.nav-indicator {
   position: absolute;
+  top: 0;
+  bottom: 0;
   border-radius: 9999px;
-  filter: blur(70px);
-  opacity: 0.35;
-  animation: drift 18s ease-in-out infinite alternate;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: left 0.35s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.35s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.2s;
 }
-.blob-1 { width: 320px; height: 320px; left: -60px; top: 10%; background: var(--accent); }
-.blob-2 { width: 260px; height: 260px; right: 5%; top: 25%; background: #38bdf8; animation-delay: -6s; animation-duration: 22s; }
-.blob-3 { width: 220px; height: 220px; left: 35%; bottom: -40px; background: #a78bfa; animation-delay: -12s; opacity: 0.25; }
-@keyframes drift {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(40px, -30px) scale(1.1); }
-  100% { transform: translate(-30px, 20px) scale(0.95); }
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
 }
 
-/* Hero entrance */
+/* ---------- Text effects ---------- */
+
 .rise {
-  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   animation-delay: var(--d, 0ms);
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, var(--foreground) 0%, var(--accent) 50%, var(--foreground) 100%);
-  background-size: 200% auto;
+  background: linear-gradient(100deg, var(--foreground) 20%, var(--accent) 45%, var(--accent-2) 55%, var(--foreground) 80%);
+  background-size: 250% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shine 8s linear infinite;
+  animation: shine 9s linear infinite;
 }
 @keyframes shine {
-  to { background-position: 200% center; }
+  from { background-position: 100% center; }
+  to { background-position: -150% center; }
 }
 
 .caret {
@@ -121,7 +193,7 @@ body {
   width: 2px;
   height: 1em;
   margin-left: 2px;
-  vertical-align: -0.1em;
+  vertical-align: -0.12em;
   background: var(--accent);
   animation: blink 1s steps(1) infinite;
 }
@@ -132,6 +204,7 @@ body {
 .pulse-dot {
   position: relative;
   display: inline-block;
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 9999px;
@@ -149,66 +222,118 @@ body {
   75%, 100% { transform: scale(2.4); opacity: 0; }
 }
 
-/* Skills strip that scrolls sideways */
-.marquee {
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-.marquee-track {
-  display: flex;
-  width: max-content;
-  gap: 0.75rem;
-  animation: marquee 40s linear infinite;
-}
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
-@keyframes marquee {
-  to { transform: translateX(calc(-50% - 0.375rem)); }
-}
+/* ---------- Cards ---------- */
 
-/* Card glow that follows the cursor (position set by Effects) */
+/* Border that lights up around the cursor + inner glow (position from Spotlight) */
 .spotlight {
   position: relative;
   isolation: isolate;
   transition: border-color 0.3s, translate 0.3s, box-shadow 0.3s;
 }
-.spotlight::before {
+.spotlight::before,
+.spotlight::after {
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: -1;
   border-radius: inherit;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%);
 }
-.spotlight:hover {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  box-shadow: 0 12px 40px -18px color-mix(in srgb, var(--accent) 40%, transparent);
+.spotlight::before {
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(480px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%);
 }
-.spotlight:hover::before {
+.spotlight::after {
+  inset: -1px;
+  padding: 1px;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--accent), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spotlight:hover::before,
+.spotlight:hover::after {
   opacity: 1;
 }
 .lift:hover {
   translate: 0 -3px;
+  box-shadow: 0 18px 40px -24px var(--glow);
 }
 
-/* Lightbox */
-.lightbox {
+/* Skills strip that scrolls sideways */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 2rem;
+  animation: marquee 45s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to { transform: translateX(calc(-50% - 1rem)); }
+}
+
+/* ---------- Terminal ---------- */
+
+.spinner::before {
+  content: "⠋";
+  animation: spin-frames 0.8s steps(1) infinite;
+}
+@keyframes spin-frames {
+  0% { content: "⠋"; } 12% { content: "⠙"; } 25% { content: "⠹"; } 37% { content: "⠸"; }
+  50% { content: "⠼"; } 62% { content: "⠴"; } 75% { content: "⠦"; } 87% { content: "⠧"; }
+}
+.fade-in {
+  animation: fade 0.4s ease-out both;
+}
+
+/* ---------- Feature showcase ---------- */
+
+.stage-shot {
+  transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.6s;
+}
+.stage-shot[data-active="false"] {
+  opacity: 0;
+  transform: scale(0.97) translateY(10px);
+  filter: blur(4px);
+  pointer-events: none;
+}
+.tab-progress {
+  transform-origin: 0 50%;
+  animation: tab-progress linear forwards;
+  animation-duration: var(--dur, 6s);
+}
+.tab-progress[data-paused="true"] {
+  animation-play-state: paused;
+}
+@keyframes tab-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ---------- Overlays ---------- */
+
+.overlay {
   animation: fade 0.2s ease-out both;
 }
-.lightbox img {
-  animation: zoom 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+.pop {
+  animation: pop 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 @keyframes fade {
   from { opacity: 0; }
 }
-@keyframes zoom {
-  from { opacity: 0; transform: scale(0.96); }
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.96) translateY(-6px); }
 }
 
-/* Scroll-driven effects; browsers without support show everything as is */
+/* ---------- Scroll-driven effects (others just show everything) ---------- */
+
 @supports (animation-timeline: view()) {
   .scroll-progress {
     animation: grow linear both;
@@ -217,14 +342,23 @@ body {
   .reveal {
     animation: reveal linear both;
     animation-timeline: view();
-    animation-range: entry 0% entry 40%;
+    animation-range: entry 0% entry 45%;
+  }
+  .timeline-fill {
+    animation: grow-y linear both;
+    animation-timeline: view();
+    animation-range: cover 15% cover 65%;
   }
 }
 @keyframes grow {
   to { transform: scaleX(1); }
 }
+@keyframes grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
 @keyframes reveal {
-  from { opacity: 0; transform: translateY(28px) scale(0.98); }
+  from { opacity: 0; transform: translateY(32px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
 
