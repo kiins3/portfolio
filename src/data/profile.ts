@@ -65,15 +65,17 @@ export type Project = {
   facts: string[];
   /** Shown instead of links when the code can't be shared. */
   note?: string;
-  /** Screenshots in public/, 1440x900. */
-  images?: { src: string; alt: string }[];
+  /** Screenshots in public/projects. */
+  images?: { src: string; alt: string; width: number; height: number }[];
+  /** "phone" shows portrait app screenshots in a phone frame. */
+  imageKind?: "browser" | "phone";
 };
 
 export const projects: Project[] = [
   {
     name: "Rosyy — AI mental-health coaching platform",
     tagline:
-      "Internship at ROSYY Inc. (US). Clients chat with an AI companion and book paid live sessions with human coaches; the team runs everything from an admin portal.",
+      "Internship at ROSYY Inc. (US). An app for mothers and caregivers: they chat with an AI companion and book paid live sessions with human coaches; the team runs everything from an admin portal.",
     facts: ["4 repositories", "150+ commits", "Backend + admin web + mobile"],
     points: [
       "Booking engine: recurring coach schedules, per-coach pricing, 24-hour cancellation and free-rebook rules, check-in windows and three-step session reminders.",
@@ -84,8 +86,14 @@ export const projects: Project[] = [
       "Separate staging environment, Docker images deployed to Google Cloud Run; coach-side screens in the Flutter app.",
     ],
     stack: ["Node.js", "Express", "TypeScript", "Supabase (Postgres)", "Stripe", "OpenAI", "Next.js", "React", "Flutter", "Docker", "Cloud Run"],
-    links: [],
+    links: [{ label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.rosyy.rosyy_and" }],
     note: "Private company codebase",
+    imageKind: "phone",
+    images: [
+      { src: "/projects/rosyy-1.png", alt: "Rosyy app: welcome screen", width: 720, height: 1561 },
+      { src: "/projects/rosyy-2.png", alt: "Rosyy app: choosing an AI companion", width: 720, height: 1561 },
+      { src: "/projects/rosyy-3.png", alt: "Rosyy app: chat with the AI companion", width: 720, height: 1561 },
+    ],
   },
   {
     name: "Blood Bank Management System",
@@ -107,10 +115,10 @@ export const projects: Project[] = [
       { label: "Frontend", href: "https://github.com/kiins3/bloodbank-web" },
     ],
     images: [
-      { src: "/projects/bloodbank-landing.png", alt: "Public landing page with upcoming donation campaigns" },
-      { src: "/projects/bloodbank-admin.png", alt: "Admin dashboard: stock by blood group, campaigns and pending requests" },
-      { src: "/projects/bloodbank-desk.png", alt: "Campaign desk for technical staff: check-in, screening and collection queues with live updates" },
-      { src: "/projects/bloodbank-request.png", alt: "Hospital view of a delivered blood request with progress and exported bags" },
+      { src: "/projects/bloodbank-landing.png", alt: "Public landing page with upcoming donation campaigns", width: 1440, height: 900 },
+      { src: "/projects/bloodbank-admin.png", alt: "Admin dashboard: stock by blood group, campaigns and pending requests", width: 1440, height: 900 },
+      { src: "/projects/bloodbank-desk.png", alt: "Campaign desk for technical staff: check-in, screening and collection queues with live updates", width: 1440, height: 900 },
+      { src: "/projects/bloodbank-request.png", alt: "Hospital view of a delivered blood request with progress and exported bags", width: 1440, height: 900 },
     ],
   },
 ];
